@@ -420,6 +420,7 @@ export default function App() {
             </div>
             <div style={{display:"flex",gap:8}}>
               <button style={{...btn("amber"),padding:"8px 12px",fontSize:13}} onClick={()=>setView("qr")}>📷 QR</button>
+              <button style={{...btn("primary"),padding:"8px 12px",fontSize:13}} onClick={()=>setView("stats")}>📊 Stats</button>
               <button style={{...btn("ghost"),padding:"8px 12px",fontSize:13}} onClick={()=>{setUser(null);setView("login")}}>Esci</button>
             </div>
           </div>
@@ -489,6 +490,148 @@ export default function App() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  /* ══ STATS ══ */
+  if (view === "stats") {
+    const ombEvents = events.filter(e=>e.is_ombrellone)
+
+    // 🏆 Classifica — presenze totali per membro (tutti gli eventi)
+    const rankAll = members.map(m => ({
+      ...m,
+      total: events.filter(e=>e.attendees?.find(a=>a.id===m.id)).length,
+      mare:  ombEvents.filter(e=>e.attendees?.find(a=>a.id===m.id)).length,
+    })).sort((a,b)=>b.total-a.total)
+
+    // 📅 Giorno più affollato
+    const busiest = [...ombEvents].sort((a,b)=>(b.attendees?.length||0)-(a.attendees?.length||0))[0]
+
+    // 📊 Presenze per mese (ombrellone)
+    const byMonth = Array.from({length:12},(_,i)=>({
+      month: MONTHS[i].slice(0,3),
+      count: ombEvents.filter(e=>parseInt(e.date.split("-")[1])-1===i)
+                      .reduce((sum,e)=>sum+(e.attendees?.length||0),0)
+    }))
+    const maxMonth = Math.max(...byMonth.map(m=>m.count), 1)
+
+    const medal = (i) => i===0?"🥇":i===1?"🥈":i===2?"🥉":"  "
+
+    return (
+      <div style={wrap(ADMIN_BG)}>
+        <div style={glow("60%","5%","#a29bfe")}/><div style={glow("-10%","60%","#feca57")}/>
+        <div style={inner}>
+          <div style={{padding:"24px 0 16px",display:"flex",alignItems:"center",gap:12}}>
+            <button style={{...btn("ghost"),padding:"8px 14px",fontSize:14}} onClick={()=>setView("admin")}>← Indietro</button>
+            <div style={{fontFamily:"'Syne',sans-serif",fontWeight:800,fontSize:20}}>Statistiche 📊</div>
+          </div>
+
+          {/* 🏆 Classifica */}
+          <div style={{fontFamily:"'Syne',sans-serif",fontWeight:800,fontSize:16,marginBottom:10}}>🏆 Classifica presenze</div>
+          <div style={card()}>
+            {rankAll.length===0 && <div style={{color:"rgba(232,244,253,.3)",fontSize:14,textAlign:"center"}}>Nessun dato ancora</div>}
+            {rankAll.map((m,i)=>(
+              <div key={m.id} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 0",
+                borderBottom:i<rankAll.length-1?"1px solid rgba(255,255,255,.07)":"none"}}>
+                <div style={{fontSize:20,width:28,textAlign:"center"}}>{medal(i)}</div>
+                <Avatar name={m.name} color={m.color} size={34}/>
+                <div style={{flex:1}}>
+                  <div style={{fontWeight:700,fontSize:14}}>{m.name}</div>
+                  <div style={{fontSize:12,color:"rgba(232,244,253,.4)",marginTop:2}}>
+                    🏖️ {m.mare} al mare · 📅 {m.total} totali
+                  </div>
+                </div>
+                {/* bar */}
+                <div style={{width:60}}>
+                  <div style={{height:6,background:"rgba(255,255,255,.1)",borderRadius:3,overflow:"hidden"}}>
+                    <div style={{height:"100%",borderRadius:3,
+                      width:`${rankAll[0].total ? Math.round(m.total/rankAll[0].total*100) : 0}%`,
+                      background:"linear-gradient(90deg,#a29bfe,#48dbfb)"}}/>
+                  </div>
+                  <div style={{fontSize:11,color:"rgba(232,244,253,.5)",textAlign:"right",marginTop:2}}>{m.total} ev.</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* 📅 Giorno più affollato */}
+          <div style={{fontFamily:"'Syne',sans-serif",fontWeight:800,fontSize:16,marginBottom:10}}>📅 Giorno più affollato</div>
+          <div style={card()}>
+            {!busiest ? (
+              <div style={{color:"rgba(232,244,253,.3)",fontSize:14,textAlign:"center"}}>Nessuna giornata ancora</div>
+            ) : (
+              <div style={{display:"flex",alignItems:"center",gap:14}}>
+                <div style={{fontSize:40}}>🏖️</div>
+                <div style={{flex:1}}>
+                  <div style={{fontFamily:"'Syne',sans-serif",fontWeight:800,fontSize:18,marginBottom:4}}>
+                    {fmtDate(busiest.date)}
+                  </div>
+                  <div style={{fontSize:14,color:"rgba(232,244,253,.6)",marginBottom:8}}>
+                    <strong style={{color:"#feca57",fontSize:22}}>{busiest.attendees?.length||0}</strong> persone presenti
+                  </div>
+                  <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+                    {(busiest.attendees||[]).map(a=>(
+                      <div key={a.id} style={{display:"flex",alignItems:"center",gap:4,
+                        background:"rgba(254,202,87,.1)",border:"1px solid rgba(254,202,87,.25)",
+                        borderRadius:20,padding:"3px 10px 3px 5px"}}>
+                        <Avatar name={a.name} color={a.color} size={18}/>
+                        <span style={{fontSize:12}}>{a.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* 🏖️ Giornate al mare per membro */}
+          <div style={{fontFamily:"'Syne',sans-serif",fontWeight:800,fontSize:16,marginBottom:10}}>🏖️ Giornate al mare a testa</div>
+          <div style={card()}>
+            {rankAll.length===0 && <div style={{color:"rgba(232,244,253,.3)",fontSize:14,textAlign:"center"}}>Nessun dato ancora</div>}
+            {[...rankAll].sort((a,b)=>b.mare-a.mare).map((m,i)=>(
+              <div key={m.id} style={{display:"flex",alignItems:"center",gap:10,padding:"10px 0",
+                borderBottom:i<rankAll.length-1?"1px solid rgba(255,255,255,.07)":"none"}}>
+                <Avatar name={m.name} color={m.color} size={32}/>
+                <div style={{flex:1,fontWeight:600,fontSize:14}}>{m.name}</div>
+                <div style={{display:"flex",alignItems:"center",gap:6}}>
+                  <div style={{height:6,width:80,background:"rgba(255,255,255,.1)",borderRadius:3,overflow:"hidden"}}>
+                    <div style={{height:"100%",borderRadius:3,
+                      width:`${ombEvents.length ? Math.round(m.mare/ombEvents.length*100) : 0}%`,
+                      background:"linear-gradient(90deg,#1dd1a1,#48dbfb)"}}/>
+                  </div>
+                  <div style={{fontSize:13,fontWeight:700,color:"#1dd1a1",minWidth:28,textAlign:"right"}}>{m.mare}☀️</div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* 📊 Grafico presenze per mese */}
+          <div style={{fontFamily:"'Syne',sans-serif",fontWeight:800,fontSize:16,marginBottom:10}}>📊 Presenze per mese</div>
+          <div style={card()}>
+            {ombEvents.length===0 ? (
+              <div style={{color:"rgba(232,244,253,.3)",fontSize:14,textAlign:"center"}}>Nessun dato ancora</div>
+            ) : (
+              <div style={{display:"flex",alignItems:"flex-end",gap:4}}>
+                {byMonth.map((m,i)=>(
+                  <div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:3}}>
+                    <div style={{fontSize:9,color:"rgba(232,244,253,.5)"}}>{m.count||""}</div>
+                    <div style={{
+                      width:"100%", borderRadius:"3px 3px 0 0",
+                      height:`${Math.round(m.count/maxMonth*80)}px`,
+                      minHeight: m.count>0?4:0,
+                      background: m.count>0
+                        ? "linear-gradient(180deg,#48dbfb,#1dd1a1)"
+                        : "rgba(255,255,255,.05)",
+                      transition:"height .3s"
+                    }}/>
+                    <div style={{fontSize:8,color:"rgba(232,244,253,.4)",marginTop:3}}>{m.month}</div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
