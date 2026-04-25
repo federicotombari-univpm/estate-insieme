@@ -3,7 +3,7 @@ import QRCode from 'qrcode'
 import { getMembers, getEvents, upsertMember, upsertEvent, deleteEventDB } from './supabase'
 
 /* ── constants ── */
-export const ADMIN_PASSWORD = "estate2025"
+export const ADMIN_PASSWORD = "shotsegreto"
 export const COLORS = ["#FF6B6B","#FF9F43","#FECA57","#48DBFB","#1DD1A1","#FF9FF3","#54A0FF","#5F27CD","#00D2D3","#FF6348","#7BED9F","#70A1FF","#FFA502","#2ED573","#FF4757","#A29BFE","#FD79A8","#FDCB6E","#6C5CE7","#00CEC9"]
 export const EMOJIS = ["🏖️","⛵","🍕","🎉","🌊","🍹","🎸","🏄","🌅","🎊","🍦","🏕️","🎆","🥂","🌴"]
 const MONTHS = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"]
