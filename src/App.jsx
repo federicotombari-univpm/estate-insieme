@@ -346,7 +346,7 @@ export default function App() {
           <div style={{fontSize:64,marginBottom:12}}>🏖️</div>
           <div style={{fontFamily:"'Syne',sans-serif",fontSize:32,fontWeight:800,letterSpacing:"-1px",marginBottom:8,
             background:"linear-gradient(135deg,#48dbfb,#ff9ff3)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>
-            Estate Insieme
+            Eventi Fedo's
           </div>
           <div style={{color:"rgba(232,244,253,.5)",fontSize:15}}>Il calendario della vostra estate 🌴</div>
         </div>
