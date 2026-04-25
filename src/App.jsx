@@ -348,7 +348,7 @@ export default function App() {
             background:"linear-gradient(135deg,#48dbfb,#ff9ff3)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>
             Eventi Fedo's
           </div>
-          <div style={{color:"rgba(232,244,253,.5)",fontSize:15}}>Il calendario della vostra estate 🌴</div>
+          <div style={{color:"rgba(232,244,253,.5)",fontSize:15}}>Il calendario della compagnia 🔥</div>
         </div>
 
         {!showAdminLogin ? (<>
